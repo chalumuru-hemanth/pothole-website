@@ -1,0 +1,119 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Update Pothole {% endblock %}
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+<style>
+  .card {
+    margin-top: 50px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .card-header-primary {
+    background: linear-gradient(60deg, #4caf50, #388e3c);
+    color: #fff;
+    border-radius: 10px 10px 0 0;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .card-body {
+    padding: 30px;
+  }
+
+  .card-title {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 24px;
+  }
+
+  .card-category {
+    font-size: 16px;
+    margin-bottom: 20px;
+  }
+
+  label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: block;
+  }
+
+  input[type="text"],
+  textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+  }
+
+  input[type="file"] {
+    margin-top: 5px;
+  }
+
+  button[type="submit"], button[type="button"] {
+    background-color: #4caf50;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  button[type="submit"]:hover, button[type="button"]:hover {
+    background-color: #388e3c;
+  }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header card-header-primary">
+    <h4 class="card-title">Update Pothole</h4>
+    <p class="card-category">Thank you for helping us keep our roads safe. To update the status of a pothole, please provide the coordinates or road name of the pothole below. You may also upload a picture (optional).</p>
+  </div>
+  <div class="card-body">
+    <form id="pothole-form" method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <label for="location">Location (Coordinates or Road Name):</label>
+      <input type="text" id="location" name="location" required />
+
+      <label for="details">Additional Details (Optional):</label>
+      <textarea id="details" name="details" rows="4"></textarea>
+
+      <label for="image">Upload Picture (Optional):</label>
+      <input type="file" id="image" name="image" />
+
+      <button type="button" id="get-coordinates">Get Coordinates</button>
+      <button type="submit">Update Pothole</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const getCoordinatesBtn = document.getElementById('get-coordinates');
+
+    getCoordinatesBtn.addEventListener('click', function() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          const latitude = position.coords.latitude;
+          const longitude = position.coords.longitude;
+          const locationInput = document.getElementById('location');
+          locationInput.value = `${latitude}, ${longitude}`;
+        }, function(error) {
+          console.error('Error getting location:', error.message);
+        });
+      } else {
+        alert('Geolocation is not supported by this browser.');
+      }
+    });
+  });
+</script>
+{% endblock content %}

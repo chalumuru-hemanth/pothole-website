@@ -1,0 +1,82 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} UI Tables {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header card-header-primary">
+                <h4 class="card-title "><h2>Potholes Information</h2></h4>
+                <p class="card-category">Here is a subtitle for this table</p>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead class=" text-primary">
+                            <th>
+                                ID
+                            </th>
+                            <th>
+                                Timestamp
+                            </th>
+                            <th>
+                                Latitude
+                            </th>
+                            <th>
+                                Longitude
+                            </th>
+                            <th>
+                                Depth
+                            </th>
+                        </thead>
+                        <tbody id="pothole-table">
+                            <!-- Pothole information will be displayed here dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script>
+    // Function to fetch and display pothole information in the table
+    function fetchAndDisplayPotholes() {
+        let url = `https://sheets.googleapis.com/v4/spreadsheets/1g0NmTqPccq1MAHr3zHSWwPcDIV9FM1sfcWr1DBQE5bA/values/coordinates?key=AIzaSyAyNUU7x56kOALsjmqIxCMAORrIfpvLUCQ`;
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Network response was not ok (status ${response.status})`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                const potholeTable = document.getElementById('pothole-table');
+                if (data && data.values && data.values.length > 0) {
+                    data.values.forEach((row, index) => {
+                        if (index === 0) return; // Skip header row
+                        const [timestamp, latitude, longitude, depth] = row;
+                        const listItem = document.createElement('tr');
+                        listItem.innerHTML = `<td>${index}</td><td>${timestamp}</td><td>${latitude}</td><td>${longitude}</td><td>${depth}</td>`;
+                        potholeTable.appendChild(listItem);
+                    });
+                } else {
+                    console.error('Error: No data returned from the Google Sheets API');
+                }
+            })
+            .catch(error => console.error('Error fetching pothole data:', error));
+    }
+
+    // Call the function to fetch and display potholes when the page loads
+    document.addEventListener('DOMContentLoaded', fetchAndDisplayPotholes);
+</script>
+{% endblock javascripts %}

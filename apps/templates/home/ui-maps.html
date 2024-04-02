@@ -1,0 +1,186 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Maps {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+    <div id="map"></div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %} 
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin="" />
+  <!-- Leaflet Control Geocoder CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+  <!-- Leaflet JavaScript -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <!-- Leaflet Control Geocoder JavaScript -->
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pothole Map</title>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin=""/>
+    <!-- Leaflet Control Geocoder CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <!-- Leaflet JavaScript -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- Leaflet Control Geocoder JavaScript -->
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+  
+      #map {
+        height: 500px;
+        width: 100%;
+      }
+  
+      .container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+  
+      h1 {
+        text-align: center;
+      }
+  
+      .pothole-info {
+        margin-top: 10px;
+        padding: 10px;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+      }
+  
+      #pothole-list {
+        list-style: none;
+        padding: 0;
+      }
+  
+      #pothole-list li {
+        cursor: pointer;
+        padding: 5px;
+        margin-bottom: 5px;
+        background-color: #f0f0f0;
+        border-radius: 5px;
+      }
+  
+      #pothole-list li:hover {
+        background-color: #e0e0e0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Pothole Map</h1>
+      <div id="map"></div>
+      <div class="pothole-info">
+        <h2>Potholes Information</h2>
+        <ul id="pothole-list">
+          <!-- Pothole information will be displayed here dynamically -->
+        </ul>
+      </div>
+    </div>
+  </body>
+    
+  <script>
+    // Initialize the map
+    const map = L.map('map').setView([17.6868, 83.2185], 10);
+    
+    // Add the tile layer (OpenStreetMap)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Add Leaflet Control Geocoder
+    const geocoder = L.Control.geocoder().addTo(map);
+
+    // Fetch and plot potholes initially
+    fetchPotholes();
+
+    // Handle the markgeocode event
+    geocoder.on('markgeocode', function(event) {
+      const { center } = event.geocode;
+      // Adjust map view to focus on the searched location
+      map.setView([center.lat, center.lng], 16);
+      
+      // Clear existing pothole markers
+      clearPotholeMarkers();
+      
+      // Fetch and plot potholes in the searched area
+      fetchPotholes(center.lat, center.lng);
+    });
+
+    // Function to fetch and plot potholes in the specified area
+    function fetchPotholes(latitude = null, longitude = null) {
+      let url = `https://sheets.googleapis.com/v4/spreadsheets/1g0NmTqPccq1MAHr3zHSWwPcDIV9FM1sfcWr1DBQE5bA/values/coordinates?key=AIzaSyAyNUU7x56kOALsjmqIxCMAORrIfpvLUCQ`;
+      if (latitude && longitude) {
+        // You may need to format latitude and longitude for query parameters
+        url += `&lat=${latitude}&lng=${longitude}`;
+      }
+      fetch(url)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`Network response was not ok (status ${response.status})`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          // Assuming your data structure is an array of arrays where each inner array represents a row in your spreadsheet
+          const potholeList = document.getElementById('pothole-list');
+          if (data && data.values && data.values.length > 0) {
+            data.values.forEach((row, index) => {
+              // Skip header row if needed
+              if (index === 0) return;
+              const timestamp = row[0];
+              const latitude = row[1];
+              const longitude = row[2];
+              const depth = row[3];
+              const marker = L.marker([latitude, longitude])
+                .addTo(map)
+                .bindPopup(`<strong>${timestamp}</strong><br>Depth: ${depth} centimeters`);
+              // Add pothole information to the list
+              const listItem = document.createElement('li');
+              listItem.textContent = timestamp;
+              // Add click event listener to show pothole on map
+              listItem.addEventListener('click', () => {
+                map.setView([latitude, longitude], 15);
+                marker.openPopup();
+              });
+              potholeList.appendChild(listItem);
+            });
+          } else {
+            console.error('Error: No data returned from the Google Sheets API');
+          }
+        })
+        .catch(error => console.error('Error fetching pothole data:', error));
+    }
+
+    // Function to clear existing pothole markers
+    function clearPotholeMarkers() {
+      map.eachLayer(layer => {
+        if (layer instanceof L.Marker) {
+          map.removeLayer(layer);
+        }
+      });
+      document.getElementById('pothole-list').innerHTML = '';
+    }
+  </script>
+
+{% endblock javascripts %}

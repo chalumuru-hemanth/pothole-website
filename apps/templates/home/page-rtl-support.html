@@ -1,0 +1,23 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} RTL Support {% endblock %}
+
+{% block content %}
+<div class="container">
+  <h2>Reported Pothole Information</h2>
+  <div>
+    <h3>Location:</h3>
+    <p>{{ location }}</p>
+  </div>
+  <div>
+    <h3>Details:</h3>
+    <p>{{ details }}</p>
+  </div>
+  {% if image %}
+  <div>
+    <h3>Image:</h3>
+    <img src="{{ image.url }}" alt="Pothole Image">
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

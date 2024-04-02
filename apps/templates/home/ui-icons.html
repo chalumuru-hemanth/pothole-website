@@ -1,0 +1,159 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Project Documentation {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+<style>
+  .component-card {
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    height: 100%;
+  }
+  
+  .component-card:hover {
+    transform: scale(1.05);
+  }
+  
+  .component-card .card-img-top {
+    height: 300px; /* Adjust height as needed */
+    object-fit: cover;
+  }
+  
+  .component-card:hover .card-description {
+    display: block;
+  }
+  
+  .card-description {
+    display: none;
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    text-align: center;
+  }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+
+<div class="container-fluid">
+  
+  
+  <div class="row mt-4">
+    <div class="col-md-12">
+      <div class="card card-plain">
+        <div class="card-header card-header-primary">
+          <h4 class="card-title">Project Overview</h4>
+        </div>
+        <div class="card-body">
+          <p>This project aims to detect potholes using an ultrasonic sensor and GPS module, and then log the pothole coordinates to Google Sheets via a Wi-Fi connection. The system consists of an Arduino board, an ultrasonic sensor, a GPS module, and an L298N motor driver for controlling the movement of the vehicle.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row mt-4">
+    <div class="col-md-12">
+      <div class="card card-plain">
+        <div class="card-header card-header-primary">
+          <h4 class="card-title">Components</h4>
+        </div>
+        <div class="card-body">
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-4">
+      <div class="card card-plain component-card">
+        <img src="https://freesvg.org/img/1666364456Esp32_devkitc_v4.png" class="card-img-top" alt="ESP 32">
+        <div class="card-description">
+          <h5>ESP 32</h5>
+          <p>A powerful Wi-Fi and Bluetooth-enabled microcontroller.</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-4">
+      <div class="card card-plain component-card">
+        <img src="/static/assets/img/l2983.png" class="card-img-top" alt="L298N Motor Driver">
+        <div class="card-description">
+          <h5>L298N Motor Driver</h5>
+          <p>Controls the movement of the vehicle in response to pothole detection (optional).</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card card-plain component-card">
+        <img src="/static/assets/img/Neo 6M.png" class="img-responsivecard-img-top" alt="NEO-6M GPS Module">
+        <div class="card-description">
+          <h5>NEO-6M GPS Module</h5>
+          <p>Provides accurate location coordinates for logging pothole data.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card card-plain component-card">
+        <img src="/static/assets/img/hc-sr04.png" class="img-responsivecard-img-top" alt="NEO-6M GPS Module">
+        <div class="card-description">
+          <h5>NEO-6M GPS Module</h5>
+          <p>Detect the presence of potholes on the road.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-md-12">
+      <div class="card card-plain">
+        <div class="card-header card-header-primary">
+          <h4 class="card-title">Functionality</h4>
+        </div>
+        <div class="card-body">
+          <ol>
+            <li><strong>Sensor Data Acquisition:</strong>
+              <ul>
+                <li>The Arduino board reads data from the ultrasonic sensor to detect the presence of potholes on the road.</li>
+                <li>Additionally, it reads GPS data from the NEO-6M module to obtain the current location coordinates.</li>
+              </ul>
+            </li>
+            <li><strong>Wi-Fi Connection:</strong>
+              <ul>
+                <li>The system establishes a Wi-Fi connection using the ESP32 module to communicate with Google Sheets.</li>
+              </ul>
+            </li>
+            <li><strong>Pothole Detection:</strong>
+              <ul>
+                <li>The ultrasonic sensor measures the distance to the ground to detect the presence of potholes.</li>
+                <li>If a pothole is detected (distance exceeds a threshold), the system proceeds to log the GPS coordinates.</li>
+              </ul>
+            </li>
+            <li><strong>Data Logging:</strong>
+              <ul>
+                <li>Once a pothole is detected, the system constructs a URL containing the timestamp, GPS coordinates, and distance.</li>
+                <li>It then sends an HTTP GET request to a Google Apps Script web app, which logs the data to a Google Sheets spreadsheet.</li>
+              </ul>
+            </li>
+            <li><strong>Motor Control (Optional):</strong>
+              <ul>
+                <li>The system includes motor control functions to maneuver the vehicle in response to detected potholes. However, this functionality is not utilized in the current implementation.</li>
+              </ul>
+            </li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+</div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}{% endblock javascripts %}
